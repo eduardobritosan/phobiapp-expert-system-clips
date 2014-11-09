@@ -27,6 +27,7 @@
 	([resultado] of Fobia
 		(nombre "Test"))
 )
+(defglobal ?*chg* = FALSE)
 (deffunction ask (?question $?allowed-values) ""
    (printout t ?question)
    (bind ?answer (read))
@@ -49,30 +50,25 @@
 		(return FALSE)
 	)
 	(if (eq (send ?p get-atributos) (send [resultado] get-atributos)) then
-		(printout t (send ?p get-nombre) " es el diagnostico." crlf)
+		(printout t crlf crlf (send ?p get-nombre) " es el diagnostico mas probable." crlf crlf)
+		(bind ?*chg* TRUE)
 		(return TRUE)
-	)
-	
+	)	
 )
 (defmessage-handler Fobia print primary ()
 	(send ?self print))
 (defrule compare
 ?ins <- (object (is-a Fobia))
 =>
-	;(bind ?z(send ?ins get-atributos))
-	(if(compara-todo ?ins) then
-
-	else
-;		(printout t "No tiene ninguna fobia" crlf)
-	)
+	(compara-todo ?ins)
 )
 (defrule presentacion "regla que presenta al sistema"
- (declare (salience 10))
-  =>
-  (printout t "-----------------------------------------------" crlf)
-  (printout t "-------------- PHOBIA EXPERT SYSTEM------------" crlf)
-  (printout t "-----------------------------------------------" crlf)
-  (printout t crlf)
+	(declare (salience 10))
+	=>
+	(printout t "--------------~~~~~~~~~~~~~~~~~~~~---------------------------~~~~~~~~~~~~~~~~~~~~--------------------------~~~~~~~~~~~~~~~~~~~~-------------" crlf crlf)
+	(printout t "~~~~~~~~~~~~~~PHOBIA EXPERT SYSTEM~~~~~~~~~~~~~~~~~~~~~~~~~~~PHOBIA EXPERT SYSTEM~~~~~~~~~~~~~~~~~~~~~~~~~~PHOBIA EXPERT SYSTEM~~~~~~~~~~~~~" crlf crlf)
+	(printout t "--------------~~~~~~~~~~~~~~~~~~~~---------------------------~~~~~~~~~~~~~~~~~~~~--------------------------~~~~~~~~~~~~~~~~~~~~-------------" crlf crlf)
+	(printout t "Bienvenido! Este sistema buscara si usted padece alguna de las fobias mas comunes a traves de un preguntas simples de si o no, esperamos que disfrute!"crlf crlf "EMPECEMOS!!!"crlf crlf)
 )
 (defrule preguntas ""
 =>
@@ -88,10 +84,10 @@
 			(slot-insert$ resultado atributos (length atributos) ?newattr)
 		)
 	else 
-		(if (y-n "Miedo a vomitar? (s/n)") then
+		(if (y-n "Tiene un miedo irracional al acto de vomitar, sea propio o hecho por terceros? (s/n)") then
 			(bind ?newattr "Miedo a vomitar")
 			(slot-insert$ resultado atributos (length atributos) ?newattr)
-			(if (y-n "Evita a beber alcohol? (s/n)") then
+			(if (y-n "Evita a beber alcohol a toda costa, solo para evitar vomitar? (s/n)") then
 				(bind ?newattr "Evitan a beber alcohol")
 				(slot-insert$ resultado atributos (length atributos) ?newattr)
 			)
@@ -100,33 +96,52 @@
 				(slot-insert$ resultado atributos (length atributos) ?newattr)
 			)
 		else 
-			(if (y-n "Tiene miedo a espacios cerrados? (s/n)") then
+			(if (y-n "Tiene miedo a los espacios cerrados? (s/n)") then
 				(bind ?newattr "Miedo a espacios cerrados")
 				(slot-insert$ resultado atributos (length atributos) ?newattr)
-				(if (y-n "Elige situarse cerca de las salidaso? (s/n)") then
+				(if (y-n "Elige situarse cerca de las salidas en cualquier evento o situacion? (s/n)") then
 					(bind ?newattr "Elige situarse cerca de las salidas" )
 					(slot-insert$ resultado atributos (length atributos) ?newattr)
 				)
-				(if (y-n "Suele coger escaleras? (s/n)") then
+				(if (y-n "Suele coger escaleras en vez de ascensores? (s/n)") then
 					(bind ?newattr "Suele coger escaleras")
 					(slot-insert$ resultado atributos (length atributos) ?newattr)
 				)
 			else 
-				(if (y-n "Miedo a lugares donde no pueda huir? (s/n)") then
+				(if (y-n "Teme irracionalmente a lugares de los no pueda irse rapidamente por su amplitud? (s/n)") then
 					(bind ?newattr "Miedo a lugares donde no pueda huir")
 					(slot-insert$ resultado atributos (length atributos) ?newattr)
-					(if (y-n "Temor a estar solo? (s/n)") then
+					(if (y-n "Siente miedo a estar solo? (s/n)") then
 						(bind ?newattr "Temor a estar solo" )
 						(slot-insert$ resultado atributos (length atributos) ?newattr)
 					)
-					(if (y-n "No suele salir de casa? (s/n)") then
+					(if (y-n "Suele evitar salir de casa todo lo posible? (s/n)") then
 						(bind ?newattr "No suele salir de casa")
 						(slot-insert$ resultado atributos (length atributos) ?newattr)
 					)
+					else
+						(if (y-n "Siente miedo irracional a conducir? (s/n)") then
+							(bind ?newattr "Miedo a conducir")
+							(slot-insert$ resultado atributos (length atributos) ?newattr)
+							(if (y-n "Siente ataques de ansiedad al conducir? (s/n)") then
+								(bind ?newattr "Ansiedad al conducir" )
+								(slot-insert$ resultado atributos (length atributos) ?newattr)
+							)
+							(if (y-n "Tuvo un accidente de coche en el pasado? (s/n)") then
+								(bind ?newattr "Suele venir de un accidente en coche")
+								(slot-insert$ resultado atributos (length atributos) ?newattr)
+							)	
+						)
 				)
 			)
 		)
 	)
 )
 
-
+(defrule final
+(declare (salience -1))
+=>
+	(if(eq ?*chg* FALSE)then
+	(printout t crlf crlf "No sufre usted de fobias" crlf crlf)
+	)
+)
